@@ -1,0 +1,16 @@
+---
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'releases/target'
+name: Release the Target Release
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Create the Release
+        run: make release
+
