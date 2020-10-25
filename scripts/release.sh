@@ -2,6 +2,7 @@
 
 set -e
 
+source ${DAPPER_SOURCE}/scripts/lib/image_defs
 source ${DAPPER_SOURCE}/scripts/lib/utils
 source ${SCRIPTS_DIR}/lib/debug_functions
 
@@ -30,6 +31,21 @@ function release_project() {
     gh release create "${release['version']}" --title "${release['name']}" --notes "${release['release-notes']}" --repo "${release_repo}/${project}" --target "$commit_ref"
 }
 
+function tag_images() {
+    images=""
+
+    # Creating a local tag so that images are uploaded with it
+    git tag -f "${release['version']}"
+
+    for project in ${PROJECTS[*]}; do
+        for image in ${project_images[${project}]}; do
+            images+=" $image"
+        done
+    done
+
+    make release RELEASE_ARGS="$images --tag ${release['version']}"
+}
+
 ### Main ###
 
 file=$(readlink -f releases/target)
@@ -44,6 +60,8 @@ export GITHUB_TOKEN="${RELEASE_TOKEN}"
 for project in ${PROJECTS[*]}; do
     release_project || errors=$((errors+1))
 done
+
+tag_images || errors=$((errors+1))
 
 if [[ $errors > 0 ]]; then
     printerr "Encountered ${errors} errors while doing the release."
