@@ -3,34 +3,50 @@
 set -e
 
 source ${DAPPER_SOURCE}/scripts/lib/utils
+source ${SCRIPTS_DIR}/lib/debug_functions
+
+### Functions ###
+
+function determine_repo() {
+    origin_url=$(git config --get remote.origin.url)
+    if [[ "$origin_url" =~ ^https:.* ]]; then
+        echo "$origin_url" | cut -f 4 -d'/'
+    elif [[ "$origin_url" =~ ^git@.* ]]; then
+        echo "$origin_url" | cut -f 4- -d'/' | cut -f 1 -d '.'
+    else
+        printerr "Can't parse origin URL to extract origin repo: ${origin_url}"
+        return 1
+    fi
+}
+
+function create_release() {
+    gh config set prompt disabled
+    gh release create "${release['version']}" projects/submariner-operator/dist/subctl-* --title "${release['name']}" --notes "${release['release-notes']}"
+}
+
+function release_project() {
+    clone_repo
+    commit_ref=$(_git rev-parse --verify HEAD)
+    gh release create "${release['version']}" --title "${release['name']}" --notes "${release['release-notes']}" --repo "${release_repo}/${project}" --target "$commit_ref"
+}
+
+### Main ###
 
 file=$(readlink -f releases/target)
 read_release_file
+release_repo=$(determine_repo)
+errors=0
 
-gh config set prompt disabled
-gh release create "${release['version']}" projects/submariner-operator/dist/subctl-* --title "${release['name']}" --notes "${release['release-notes']}"
+create_release || errors=$((errors+1))
 
 export GITHUB_TOKEN="${RELEASE_TOKEN}"
 
-origin_url=$(git config --get remote.origin.url)
-if [[ "$origin_url" =~ ^https:.* ]]; then
-    release_repo=$(echo "$origin_url" | cut -f 4 -d'/')
-elif [[ "$origin_url" =~ ^git@.* ]]; then
-    release_repo=$(echo "$origin_url" | cut -f 4- -d'/' | cut -f 1 -d '.')
-else
-    printerr "Can't parse origin URL to extract origin repo: ${origin_url}"
-    exit 1
-fi
-
-errors=0
 for project in ${PROJECTS[*]}; do
-    clone_repo
-    commit_ref=$(_git rev-parse --verify HEAD)
-    gh release create "${release['version']}" --title "${release['name']}" --notes "${release['release-notes']}" --repo "${release_repo}/${project}" --target "$commit_ref" || errors=$((errors+1))
+    release_project || errors=$((errors+1))
 done
 
 if [[ $errors > 0 ]]; then
-    printerr "Failed to create release on ${errors} projects."
+    printerr "Encountered ${errors} errors while doing the release."
     exit 1
 fi
 
