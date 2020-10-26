@@ -1,6 +1,7 @@
 ---
 version: v0.6.1
 name: the mighty 0.6 release!  # The name will be used for the GH release
+pre-release: false # Set to `true` to release it as a pre-release
 # Contents of release notes should be markdown formatted as that's what
 # GitHub uses
 release-notes: |

@@ -23,6 +23,7 @@ function read_release_file() {
 
     _read 'version'
     _read 'name'
+    _read 'pre-release'
     _read 'release-notes'
     _read 'components'
     for project in ${PROJECTS[*]}; do

@@ -20,8 +20,9 @@ function determine_repo() {
 }
 
 function create_release() {
+    [[ "${release['pre-release']}" = "true" ]] && prerelease="--prerelease"
     gh config set prompt disabled
-    gh release create "${release['version']}" projects/submariner-operator/dist/subctl-* --title "${release['name']}" --notes "${release['release-notes']}"
+    gh release create "${release['version']}" projects/submariner-operator/dist/subctl-* $prerelease --title "${release['name']}" --notes "${release['release-notes']}"
 }
 
 function release_project() {
