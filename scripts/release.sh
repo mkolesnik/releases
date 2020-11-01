@@ -26,6 +26,46 @@ function create_release() {
         --notes "${release['release-notes']}"
 }
 
+function create_project_release() {
+    export GITHUB_TOKEN="${RELEASE_TOKEN}"
+    commit_ref=$(_git rev-parse --verify HEAD)
+    create_release "${project}" "${commit_ref}" || errors=$((errors+1))
+}
+
+function pin_to_shipyard() {
+    local org=$(determine_org)
+    local msg="Pin Shipyard to ${release['version']}"
+
+    git checkout -B pin_shipyard origin/master
+    sed -i -E "s/(shipyard-dapper-base):.*/\1:${release['version']#v}/" Dockerfile.dapper
+    if [[ -f go.mod ]]; then
+        go get github.com/submariner-io/shipyard@${release['version']}
+        go mod vendor
+        go mod tidy
+    fi
+
+    git -c user.name='Automated Release' -c user.email='release@submariner.io' \
+        commit -a -s -m "${msg}"
+    git push -f https://${GITHUB_ACTOR}:${RELEASE_TOKEN}@github.com/${org}/${project}.git pin_shipyard
+    gh pr create --repo "${org}/${project}" --head pin_shipyard --base master --title "${msg}" --body "${msg}"
+}
+
+function release_shipyard() {
+    local project=shipyard
+
+    # Release Shipyard first so that we get the tag and image
+    clone_repo
+    create_project_release || errors=$((errors+1))
+
+    # Create a PR to pin Shipyard on every one of its consumers
+    for project in ${SHIPYARD_CONSUMERS[*]}; do
+        clone_repo master
+        pushd "projects/${project}"
+        pin_to_shipyard || errors=$((errors+1))
+        popd
+    done
+}
+
 function tag_images() {
     images=""
 
@@ -43,14 +83,18 @@ function tag_images() {
 
 function release_all() {
     local commit_ref=$(git rev-parse --verify HEAD)
+    make subctl SUBCTL_ARGS=cross
     create_release releases "${commit_ref}" projects/submariner-operator/dist/subctl-* || errors=$((errors+1))
-
-    export GITHUB_TOKEN="${RELEASE_TOKEN}"
 
     for project in ${PROJECTS[*]}; do
         clone_repo
-        commit_ref=$(_git rev-parse --verify HEAD)
-        create_release "${project}" "${commit_ref}" || errors=$((errors+1))
+
+        # Skip trying to tag a project that's already tagged as we've already released it
+        if _git rev-parse "${release['version']}" >/dev/null 2>&1; then
+            continue
+        fi
+
+        create_project_release
     done
 
     tag_images || errors=$((errors+1))
@@ -63,6 +107,9 @@ file=$(readlink -f releases/target)
 read_release_file
 
 case "${release['status']}" in
+shipyard)
+    release_shipyard
+    ;;
 released)
     release_all
     ;;
