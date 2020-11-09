@@ -56,7 +56,7 @@ function release_shipyard() {
     create_project_release
 
     # Tag Shipyard images so they're available to use
-    tag_images "${project_images['shipyard']}"
+#    tag_images "${project_images['shipyard']}"
 
     # Create a PR to pin Shipayrd on every one of it's consumers
     for project in ${SHIPYARD_CONSUMERS[*]}; do
