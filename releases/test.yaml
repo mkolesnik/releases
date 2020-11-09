@@ -1,0 +1,19 @@
+---
+version: v0.0.7
+name: the mighty 0.0.7 release!  # The name will be used for the GH release
+# Contents of release notes should be markdown formatted as that's what
+# GitHub uses
+release-notes: |
+  * bugfixes:
+    * we fixed this bug
+  * features:
+    * this feature was added
+    * and this other one
+  * upgrades: # optional
+    * Upgrade notes important to anybody upgrading from a previous version
+  * deprecations: # optional
+    * Features or settings that have been deprecated and need to be updated
+      by the administrator.
+status: shipyard
+components:
+  shipyard: v0.6.1
