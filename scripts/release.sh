@@ -51,9 +51,12 @@ function pin_to_shipyard() {
 function release_shipyard() {
     local project=shipyard
 
-    # Release Shipyard first so that we get the tag and image
+    # Release Shipyard first so that we get the tag
     clone_repo
     create_project_release || errors=$((errors+1))
+
+    # Tag Shipyard images so they're available to use
+    tag_images "${project_images['shipyard']}" || errors=$((errors+1))
 
     # Create a PR to pin Shipayrd on every one of it's consumers
     for project in ${SHIPYARD_CONSUMERS[*]}; do
@@ -62,10 +65,16 @@ function release_shipyard() {
 }
 
 function tag_images() {
-    images=""
+    local images="$@"
 
     # Creating a local tag so that images are uploaded with it
     git tag -f "${release['version']}"
+
+    make release RELEASE_ARGS="$images --tag ${release['version']}"
+}
+
+function tag_all_images() {
+    local images=""
 
     for project in ${PROJECTS[*]}; do
         for image in ${project_images[${project}]}; do
@@ -73,7 +82,7 @@ function tag_images() {
         done
     done
 
-    make release RELEASE_ARGS="$images --tag ${release['version']}"
+    tag_images "$images"
 }
 
 function release_all() {
