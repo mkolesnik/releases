@@ -112,7 +112,7 @@ function release_all() {
 ### Main ###
 
 errors=0
-file=$(readlink -f releases/target)
+determine_target_release
 read_release_file
 
 case "${release['status']}" in
