@@ -5,7 +5,7 @@ pre-release: true
 # Contents of release notes should be markdown formatted as that's what
 # GitHub uses
 release-notes: |
-  Here be dragons
+  Here be dragons!
 status: shipyard
 components:
   shipyard: 7e63ce8
