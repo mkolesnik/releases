@@ -66,6 +66,13 @@ function pin_to_shipyard() {
     create_pr pin_shipyard "Pin Shipyard to ${release['version']}"
 }
 
+function unpin_from_shipyard() {
+    clone_repo
+    _git checkout -B unpin_shipyard origin/master
+    sed -i -E "s/(shipyard-dapper-base):.*/\1:devel/" projects/${project}/Dockerfile.dapper
+    create_pr unpin_shipyard "Un-Pin Shipyard after ${release['version']} released"
+}
+
 function release_shipyard() {
     local project=shipyard
 
@@ -164,6 +171,11 @@ function release_all() {
     done
 
     tag_images || errors=$((errors+1))
+
+    # Create a PR to un-pin Shipyard on every one of its consumers
+    for project in ${SHIPYARD_CONSUMERS[*]}; do
+        unpin_from_shipyard || errors=$((errors+1))
+    done
 }
 
 ### Main ###
