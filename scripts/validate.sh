@@ -97,6 +97,13 @@ function validate_release() {
     shipyard)
         local project=shipyard
         clone_repo
+    admiral)
+        local project=admiral
+        clone_repo
+    projects)
+        for project in ${OPERATOR_CONSUMES[*]}; do
+            clone_repo
+        done
         ;;
     released)
         for project in ${PROJECTS[*]}; do
