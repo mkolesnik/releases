@@ -96,11 +96,9 @@ function validate_release() {
 
     case "${release['status']}" in
     shipyard)
-        local project=shipyard
-        clone_repo
+        clone_repo shipyard
     admiral)
-        local project=admiral
-        clone_repo
+        clone_repo admiral
     projects)
         for project in ${OPERATOR_CONSUMES[*]}; do
             clone_repo

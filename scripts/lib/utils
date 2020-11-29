@@ -49,6 +49,7 @@ function _git() {
 }
 
 function clone_repo() {
+    local project=${1:-${project}}
     local branch="${release["components.${project}"]:-master}"
     if [[ -d "projects/${project}" ]]; then
         _git fetch -f --tags
