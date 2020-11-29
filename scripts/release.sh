@@ -30,7 +30,14 @@ function create_release() {
 function create_project_release() {
     export GITHUB_TOKEN="${RELEASE_TOKEN}"
     commit_ref=$(_git rev-parse --verify HEAD)
-    create_release "${project}" "${commit_ref}" || errors=$((errors+1))
+    create_release "${project}" "${commit_ref}"
+}
+
+function create_project_releases() {
+    for project in $*; do
+        clone_repo
+        create_project_release || errors=$((errors+1))
+    done
 }
 
 function update_go_mod() {
@@ -67,11 +74,8 @@ function pin_to_shipyard() {
 }
 
 function release_shipyard() {
-    local project=shipyard
-
     # Release Shipyard first so that we get the tag
-    clone_repo
-    create_project_release || errors=$((errors+1))
+    create_project_releases shipyard
 
     # Tag Shipyard images so they're available to use
     tag_images "${project_images['shipyard']}" || errors=$((errors+1))
@@ -90,11 +94,8 @@ function pin_to_admiral() {
 }
 
 function release_admiral() {
-    local project=admiral
-
     # Release Admiral first so that we get the tag
-    clone_repo
-    create_project_release || errors=$((errors+1))
+    create_project_releases admiral
 
     # Create a PR to pin Admiral on every one of it's consumers
     for project in ${ADMIRAL_CONSUMERS[*]}; do
@@ -117,10 +118,7 @@ function update_operator_pr() {
 
 function release_projects() {
     # Release projects first so that we get them tagged
-    for project in ${OPERATOR_CONSUMES[*]}; do
-        clone_repo
-        create_project_release || errors=$((errors+1))
-    done
+    create_project_releases ${OPERATOR_CONSUMES[*]}
 
     # Create a PR for operator to use these versions
     update_operator_pr || errors=$((errors+1))
@@ -160,7 +158,7 @@ function release_all() {
             continue
         fi
 
-        create_project_release
+        create_project_release || errors=$((errors+1))
     done
 
     tag_all_images || errors=$((errors+1))
