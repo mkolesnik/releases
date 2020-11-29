@@ -36,8 +36,7 @@ function cleanup_dapper_in_dapper() {
 determine_target_release
 read_release_file
 
-project=submariner-operator
-clone_repo
+clone_repo submariner-operator
 
 pushd projects/submariner-operator
 dapper_in_dapper
