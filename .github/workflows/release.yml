@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'releases/**'
 
 jobs:
   release:
@@ -16,10 +14,6 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      - name: Create the release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-          QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: make create-release
+      - name: Debug Action
+        uses: hmarr/debug-action@v1.0.0
+
