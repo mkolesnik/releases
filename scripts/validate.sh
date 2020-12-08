@@ -5,6 +5,8 @@ set -e
 source ${DAPPER_SOURCE}/scripts/lib/utils
 source ${SCRIPTS_DIR}/lib/debug_functions
 
+### Functions ###
+
 function validate_release_fields() {
     local missing=0
 
@@ -115,6 +117,8 @@ function validate_release() {
 #    validate_admiral_consumers "${release["components.admiral"]}"
 #    validate_shipyard_consumers "${release["components.shipyard"]#v}"
 }
+
+### Main ###
 
 for file in $(find releases -type f); do
     read_release_file
