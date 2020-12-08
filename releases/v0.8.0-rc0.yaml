@@ -2,7 +2,7 @@
 version: v0.8.0-rc0
 name: 0.8.0-rc0
 pre-release: true
-status: released
+status: admiral
 components:
   shipyard: 0b33f7c
   admiral: a91996d
