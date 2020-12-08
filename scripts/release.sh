@@ -6,7 +6,7 @@ source ${DAPPER_SOURCE}/scripts/lib/image_defs
 source ${DAPPER_SOURCE}/scripts/lib/utils
 source ${SCRIPTS_DIR}/lib/debug_functions
 
-### Functions ###
+### Functions: General ###
 
 function determine_org() {
     git config --get remote.origin.url | awk -F'[:/]' '{print $(NF-1)}'
@@ -71,6 +71,17 @@ function create_pr() {
     gh pr create --repo "${org}/${project}" --head ${branch} --base master --title "${msg}" --body "${msg}"
 }
 
+function tag_images() {
+    local images="$@"
+
+    # Creating a local tag so that images are uploaded with it
+    git tag -f "${release['version']}"
+
+    make release RELEASE_ARGS="$images --tag ${release['version']}"
+}
+
+### Functions: Shipyard Stage ###
+
 function pin_to_shipyard() {
     clone_and_create_branch pin_shipyard
     sed -i -E "s/(shipyard-dapper-base):.*/\1:${release['version']#v}/" projects/${project}/Dockerfile.dapper
@@ -91,6 +102,8 @@ function release_shipyard() {
     done
 }
 
+### Functions: Admiral Stage ###
+
 function pin_to_admiral() {
     clone_and_create_branch pin_admiral
     update_go_mod admiral
@@ -106,6 +119,8 @@ function release_admiral() {
         pin_to_admiral || errors=$((errors+1))
     done
 }
+
+### Functions: Projects Stage ###
 
 function update_operator_pr() {
     local project="submariner-operator"
@@ -127,14 +142,7 @@ function release_projects() {
     update_operator_pr || errors=$((errors+1))
 }
 
-function tag_images() {
-    local images="$@"
-
-    # Creating a local tag so that images are uploaded with it
-    git tag -f "${release['version']}"
-
-    make release RELEASE_ARGS="$images --tag ${release['version']}"
-}
+### Functions: Released Stage ###
 
 function tag_all_images() {
     local images=""
