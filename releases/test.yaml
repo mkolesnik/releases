@@ -1,0 +1,26 @@
+---
+# This example file shows a final release stage where the file has all the fields filled
+version: v0.8.0-pre1
+name: the mighty 0.6 release!  # The name will be used for the GH release
+pre-release: false # Set to `true` to release it as a pre-release
+# Contents of release notes should be markdown formatted as that's what
+# GitHub uses
+release-notes: |
+  * bugfixes:
+    * we fixed this bug
+  * features:
+    * this feature was added
+    * and this other one
+  * upgrades: # optional
+    * Upgrade notes important to anybody upgrading from a previous version
+  * deprecations: # optional
+    * Features or settings that have been deprecated and need to be updated
+      by the administrator.
+status: shipyard
+components:
+  admiral: v0.8.0-pre0  # tag is possible
+  submariner: v0.8.0-pre0 # short commit-id is accepted
+  lighthouse: v0.8.0-pre0
+  submariner-operator: v0.8.0-pre0
+  submariner-charts: v0.8.0-pre0
+  shipyard: v0.8.0-pre0
