@@ -16,7 +16,7 @@ release-notes: |
   * deprecations: # optional
     * Features or settings that have been deprecated and need to be updated
       by the administrator.
-status: shipyard
+status: admiral
 components:
   admiral: v0.8.0-pre0  # tag is possible
   submariner: v0.8.0-rc0 # short commit-id is accepted
