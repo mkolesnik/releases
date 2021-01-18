@@ -59,7 +59,7 @@ function clone_and_create_branch() {
 function update_go_mod() {
     local target="$1"
     if [[ ! -f projects/${project}/go.mod ]]; then
-        return
+        return 1
     fi
 
     # Run in subshell so we don't change the working directory even on failure
@@ -99,8 +99,15 @@ function tag_images() {
 
 ### Functions: Branch Stage ###
 
+function update_shipyard_base() {
+    sed -i -E "s/(shipyard-dapper-base):.*/\1:${release['branch']}/" projects/${project}/Dockerfile.dapper
+}
+
 function adjust_shipyard() {
+    local project=shipyard
+
     sed -e "s/devel/${branch}/" -i projects/shipyard/Makefile.versions
+    update_shipyard_base
     _git commit -a -s -m "Update Shipyard to use stable branch '${branch}'"
 }
 
@@ -109,8 +116,16 @@ function create_branches() {
 
     for project in ${PROJECTS[*]}; do
         clone_and_create_branch "${branch}" master
-        [[ "${project}" != "shipyard" ]] || adjust_shipyard
-        push_to_repo "${branch}"
+    done
+
+    adjust_shipyard
+    for project in ${SHIPYARD_CONSUMERS[*]}; do
+        update_shipyard_base
+        _git commit -a -s -m "Update Shipyard base image to use stable branch '${branch}'"
+    done
+
+    for project in ${PROJECTS[*]}; do
+        push_to_repo "${branch}" || errors=$((errors+1))
     done
 }
 
@@ -118,16 +133,8 @@ function create_branches() {
 
 function pin_to_shipyard() {
     clone_and_create_branch pin_shipyard
-    sed -i -E "s/(shipyard-dapper-base):.*/\1:${release['version']#v}/" projects/${project}/Dockerfile.dapper
     update_go_mod shipyard
     create_pr pin_shipyard "Pin Shipyard to ${release['version']}"
-}
-
-function unpin_from_shipyard() {
-    clone_repo
-    _git checkout -B unpin_shipyard origin/master
-    sed -i -E "s/(shipyard-dapper-base):.*/\1:devel/" projects/${project}/Dockerfile.dapper
-    create_pr unpin_shipyard "Un-Pin Shipyard after ${release['version']} released"
 }
 
 function release_shipyard() {
@@ -194,13 +201,6 @@ function release_all() {
     for project in ${PROJECTS[*]}; do
         create_project_release $project
     done
-
-    # Create a PR to un-pin Shipyard on every one of its consumers, but only on GA releases
-    if [[ "${release['pre-release']}" != "true" ]]; then
-        for project in ${SHIPYARD_CONSUMERS[*]}; do
-            unpin_from_shipyard || errors=$((errors+1))
-        done
-    fi
 }
 
 function post_reviews_comment() {
