@@ -49,7 +49,6 @@ function _git() {
 }
 
 function clone_repo() {
-    local branch="${release["components.${project}"]:-master}"
     if [[ -d "projects/${project}" ]]; then
         _git fetch -f --tags
     else
@@ -58,6 +57,12 @@ function clone_repo() {
         _git config advice.detachedHead false
     fi
 
-    _git checkout "${branch}"
+}
+
+function checkout_project_branch() {
+    local base_branch="${release['branch']:-master}"
+    local branch="${release["components.${project}"]:-${base_branch}}"
+
+    _git checkout "origin/${branch}"
 }
 
