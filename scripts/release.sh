@@ -8,7 +8,6 @@ source ${SCRIPTS_DIR}/lib/debug_functions
 
 ### Constants ####
 
-readonly ORG=$(git config --get remote.origin.url | awk -F'[:/]' '{print $(NF-1)}')
 
 ### Functions: General ###
 
