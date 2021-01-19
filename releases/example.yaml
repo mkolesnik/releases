@@ -1,6 +1,6 @@
 ---
 # This example file shows a final release stage where the file has all the fields filled
-version: v0.6.1
+version: v0.6.5
 name: the mighty 0.6 release!  # The name will be used for the GH release
 pre-release: false # Set to `true` to release it as a pre-release
 # Contents of release notes should be markdown formatted as that's what
@@ -16,7 +16,7 @@ release-notes: |
   * deprecations: # optional
     * Features or settings that have been deprecated and need to be updated
       by the administrator.
-status: released
+status: admiral
 components:
   admiral: v0.6.1  # tag is possible
   submariner: 7ffe614 # short commit-id is accepted
