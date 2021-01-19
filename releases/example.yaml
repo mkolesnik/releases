@@ -17,11 +17,6 @@ release-notes: |
   * deprecations: # optional
     * Features or settings that have been deprecated and need to be updated
       by the administrator.
-status: branch
+status: shipyard
 components:
-  admiral: v0.6.1  # tag is possible
-  submariner: 7ffe614 # short commit-id is accepted
-  lighthouse: v0.6.1
-  submariner-operator: v0.6.1
-  submariner-charts: 7cc50b03d3f6e3bc4fa75a6db344dea87693dea3 # full commit-id also
-  shipyard: v0.6.1
+  shipyard: 582adef
