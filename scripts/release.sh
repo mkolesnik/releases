@@ -113,9 +113,10 @@ function adjust_shipyard() {
         # Trick our own Makefile to think we're running outside dapper
         export DAPPER_HOST_ARCH=""
 
-        # Rebuild Shipyard image with the changes we made for stable branches
+        # Rebuild Shipyard image with the changes we made for stable branches.
+        # Make sure subctl is taken from devel, as it won't be available yet
         cd projects/shipyard
-        make images
+        make images IMAGES_ARGS="--buildargs 'SUBCTL_VERSION=devel'"
     )
 
     # Upload shipyard base image so that other projects have it immediately
