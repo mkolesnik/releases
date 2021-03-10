@@ -41,9 +41,13 @@ else
 
 # Not running in Dapper
 
+Makefile.dapper:
+	@echo Downloading $@
+	@curl -sfLO https://raw.githubusercontent.com/submariner-io/shipyard/devel/$@
+
 include Makefile.dapper
 
 endif
 
 # Disable rebuilding Makefile
-Makefile Makefile.dapper: ;
+Makefile: ;
