@@ -78,3 +78,13 @@ function is_semver() {
     fi
 }
 
+function extract_semver() {
+    declare -gA semver
+    semver['major']=${1%%\.*}
+    local major_minor=${1#${semver['major']}.}
+    semver['minor']=${major_minor%%\.*}
+    local patch_pre=${1##*\.}
+    semver['patch']=${patch_pre%%-*}
+    [[ ${patch_pre} =~ - ]] && semver['pre']=${patch_pre#*-} || :
+}
+
