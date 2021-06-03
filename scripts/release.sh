@@ -33,15 +33,19 @@ function set_stable_branch() {
 }
 
 function set_status() {
-    write "status: $1"
+    if [[ -z "${release['status']}" ]]; then
+        write "status: $1"
+        return
+    fi
+
+    sed -i -E "s/(status: ).*/\1$1/" $file
 }
 
-function init_components() {
-    local project=shipyard
+function write_component() {
+    local project=${1:-${project}}
     clone_repo
     checkout_project_branch
-    write "components:"
-    write "  shipyard: $(_git rev-parse HEAD)"
+    write "  ${project}: $(_git rev-parse HEAD)"
 }
 
 function create_initial() {
@@ -53,8 +57,6 @@ version: v${version}
 name: ${version}
 release-notes: ${release_notes}
 EOF
-
-    extract_semver "$version"
  
     # On GA we'll branch out first
     if [[ -z "${semver['pre']}" ]]; then
@@ -69,15 +71,54 @@ EOF
         set_stable_branch
     fi
 
+    # We're not branching, so just move on to shipyard
+    advance_branch
+}
+
+function advance_branch() {
     set_status "shipyard"
-    init_components
+    write "components:"
+    write_component "shipyard"
+}
+
+function advance_shipyard() {
+    set_status "admiral"
+    write_component "admiral"
+}
+
+function advance_admiral() {
+    set_status "projects"
+    for project in ${OPERATOR_CONSUMES[*]}; do
+        write_component
+    done
+}
+
+function advance_projects() {
+    set_status "released"
+    write_component "submariner-operator"
+    write_component "submariner-charts"
 }
 
 function advance_stage() {
     echo "Advancing release to the next stage (file=${file})"
+
+    read_release_file
+    case "${release['status']}" in
+    branch|shipyard|admiral|projects)
+        advance_${release['status']}
+        ;;
+    released)
+        echo "The release ${version} has been released, nothing to do."
+        ;;
+    *)
+        printerr "Unknown status '${release['status']}'"
+        exit 1
+        ;;
+    esac
 }
 
 validate
+extract_semver "$version"
 file="releases/v${version}.yaml"
 if [[ ! -f "${file}" ]]; then
     create_initial
