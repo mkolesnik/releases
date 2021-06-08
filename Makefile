@@ -1,4 +1,8 @@
 BASE_BRANCH ?= devel
+GIT_EMAIL ?= release@submariner.io
+GIT_NAME ?= Automated Release
+export GIT_EMAIL
+export GIT_NAME
 
 ifneq (,$(DAPPER_SOURCE))
 
@@ -17,8 +21,8 @@ endif
 TARGET_RELEASE = $(shell . scripts/lib/utils && determine_target_release 2&> /dev/null && echo $${file})
 
 config-git:
-	git config --global user.email "release@submariner.io";\
-	git config --global user.name "Automated Release"
+	git config --global user.email "$(GIT_EMAIL)";\
+	git config --global user.name "$(GIT_NAME)"
 
 subctl: config-git
 	./scripts/subctl.sh $(SUBCTL_ARGS)
@@ -40,7 +44,7 @@ images:
 import-images: images
 	./scripts/import-images.sh
 
-release:
+release: config-git
 	./scripts/release.sh $(RELEASE_ARGS)
 
 validate:
@@ -58,6 +62,9 @@ Makefile.dapper:
 	@curl -sfLO https://raw.githubusercontent.com/submariner-io/shipyard/$(BASE_BRANCH)/$@
 
 include Makefile.dapper
+
+release: GIT_NAME = $(shell git config --get user.name)
+release: GIT_EMAIL = $(shell git config --get user.email)
 
 endif
 
