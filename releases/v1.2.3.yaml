@@ -2,7 +2,10 @@
 version: v1.2.3
 name: 1.2.3
 release-notes: 
-status: admiral
+status: projects
 components:
   shipyard: ef36a3670cc5923fbe746992997705b12e296500
   admiral: 339b67acd174d23c792f69df6d5347b49bc3d578
+  submariner: 23b6befd51b6dad5c703f4341b7457c9cb57f0ab
+  cloud-prepare: cd2c33e5ce0fed90bbd14bd6111df9c331a3784d
+  lighthouse: 4fe08405a02491c8454fb1a411bc96a3d89e9357
