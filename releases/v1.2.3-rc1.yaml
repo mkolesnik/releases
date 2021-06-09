@@ -1,0 +1,7 @@
+---
+version: v1.2.3-rc1
+name: 1.2.3-rc1
+release-notes: 
+status: shipyard
+components:
+  shipyard: ef36a3670cc5923fbe746992997705b12e296500
