@@ -1,0 +1,7 @@
+---
+version: v1.2.3
+name: 1.2.3
+status: admiral
+components:
+  shipyard: ef36a3670cc5923fbe746992997705b12e296500
+  admiral: 339b67acd174d23c792f69df6d5347b49bc3d578
