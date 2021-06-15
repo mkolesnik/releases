@@ -3,5 +3,6 @@ version: v0.2.0
 name: 0.2.0
 branch: release-0.2
 release-notes: https://github.com/submariner-io/submariner-website/pull/457
-status: branch
+status: shipyard
 components:
+  shipyard: c1b879a328474e3b68f3be50f682c29762162cda
