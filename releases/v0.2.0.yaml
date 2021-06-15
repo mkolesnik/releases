@@ -4,3 +4,4 @@ name: 0.2.0
 branch: release-0.2
 release-notes: https://github.com/submariner-io/submariner-website/pull/457
 status: branch
+components:

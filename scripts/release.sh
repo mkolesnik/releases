@@ -101,6 +101,7 @@ function create_pr() {
 
 function release_images() {
     local args="$1"
+return
     dryrun make release-images RELEASE_ARGS="${args}" || \
         dryrun make release RELEASE_ARGS="${args}"
 }
